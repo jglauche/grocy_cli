@@ -1,0 +1,47 @@
+things I can write an app with api calls (and maybe seperate storage) for:
+
+- inserting new products that you already have is awful (inventory asks you what to do, enter product, have to select it again in inventory, no auto lookup for openfoodfacts, etc.)
+	-> cli app helps, a lot
+	-> cli app should have more things to query for products that are not food or not listed there
+
+- there should be an option to have shortcut buttons "use up n items" like "use 1 - 2 - 4 slices of bread"
+
+- I want medication stock tracking, with easy medication log
+	- things sorted into container should be tracked as well
+
+- the gui has no good way to shortcut things, like things you use up often for example
+	- location shortcuts (i.e. fridge)
+	- product category shortcuts
+	- maybe have colors for different categories?
+
+- there's no non-admin user support
+	- non-admin users should only see their storage locations
+	- functions listed sidebar should be configurable by user
+	- would be nice if modules could be enabled/disabled in the admin settings rather than the config file
+
+- "parent product" is a good idea but it is not well implemented:
+	- you cannot list child products when you click on it (this might be even more useful in the purchase list, since you want to track the actual product & price)
+	- it's a bit awful that you can select you want to have a quantity of parent and child product minimum
+
+
+
+-! you can't change the best before date of your stock in any easy way
+	- annoying thing: You didn't set a "best before after opening product", you notice it after marking product opened and can't set it otherwise
+		- if you have this set, there should be an option to change the product to set "expires in x days when opened"
+
+	=> fixed in master
+
+
+
+
+not tested enough
+
+- there seem to be a way to have partial quantities of a product, but not a good way to enter it or display it in the list
+
+things requiring hackery:
+
+- no support for multiple locations of the same product
+
+- sqlite db... I want postgresql
+
+
