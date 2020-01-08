@@ -1,0 +1,7 @@
+grocy:
+  api_key:
+  grocy_url:
+
+open_food_facts:
+  user_agent: "Grocy inventory scanner"
+
