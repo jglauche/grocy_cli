@@ -7,8 +7,6 @@ module Item
       @barcode = barcode
       @name = name
       @quantity = quantity
-      query_best_before
-      query_price
     end
 
     def to_product

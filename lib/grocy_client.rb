@@ -88,8 +88,8 @@ module GrocyClient
     end
 
     def stock_path(item, action=nil)
-      return ["stock/products/#{item.id}", action].compact.join("/") if item.id
-      ["stock/products/by-barcode/#{item.barcode}", action].compact.join("/")
+      ["stock/products/#{item.id}", action].compact.join("/") if item.id
+      # ["stock/products/by-barcode/#{item.barcode}", action].compact.join("/")
     end
 
     def update_stock(item)

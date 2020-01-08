@@ -85,7 +85,11 @@ module Cli
       end
     end
     if p = @grocy.product_by_barcode(barcode)
-      @items << Item.new(barcode, p["name"])
+      item = Item.new(barcode, p["product"]["name"])
+      item.id = p["product"]["id"]
+      item.quantity = p["stock_amount"]
+
+      @items << item
       return
     end
 
@@ -103,7 +107,9 @@ module Cli
       name = rep["product"]["product_name"]
     end
 
-    @items << Item.new(barcode, name)
+    item = Item.new(barcode, name)
+    item.query_best_before
+    @items << item
   end
 
   def commit(item)
