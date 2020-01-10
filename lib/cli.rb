@@ -119,7 +119,9 @@ module Cli
       item.name = p["product"]["name"]
       item.id = p["product"]["id"]
       item.amount = p["stock_amount"].to_i
-
+      if item.amount == 0
+        item.amount = 1
+      end
       @items << item
       return
     end
