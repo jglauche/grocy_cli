@@ -71,6 +71,10 @@ module GrocyClient
       return false
     end
 
+    def last_changed
+      get("system/db-changed-time")["changed_time"]
+    end
+
     def product_by_barcode(barcode)
       get("stock/products/by-barcode/#{barcode}")
     rescue RestClient::BadRequest
@@ -103,7 +107,7 @@ module GrocyClient
     def update_stock(item)
       # we need to get the stock before posting it as the api does not spport updating to the same amount...
       stock = get(stock_path(item, 'entries'))
-      if stock.map{|l| l["amount"].to_i}.sum != item.quantity
+      if stock.map{|l| l["amount"].to_i}.sum != item.amount
         post(stock_path(item, 'inventory'), item.to_stock)
       end
     end

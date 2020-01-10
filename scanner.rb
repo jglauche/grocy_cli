@@ -2,11 +2,14 @@
 require 'rest-client'
 require 'json'
 require 'yaml'
-require 'cli/ui'
+
+require 'tty-table'
+require 'tty-prompt'
 require './lib/cli'
 require './lib/grocy'
 require './lib/inventory'
 
+require 'pry'
 
 class GrocyCli
   include Grocy
@@ -32,8 +35,7 @@ class GrocyCli
 
   def main
     loop do
-      setup_location || next if @location_id == nil
-      main_screen
+      inventory_screen
     end
   end
 

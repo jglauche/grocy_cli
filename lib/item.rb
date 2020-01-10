@@ -2,18 +2,20 @@ module Item
   class Item
     ProductKeys = %w(id barcode name description location_id qu_id_purchase qu_id_stock qu_factor_purchase_to_stock min_stock_amount default_best_before_days product_group_id default_best_before_days_after_open allow_partial_units_in_stock enable_tare_weight_handling tare_weight not_check_stock_fulfillment_for_recipes)
 
-    StockKeys = %w(amount amount_aggregated amount_opened amount_opened_aggregated best_before_date is_aggregated_amount)
-    # TODO: check why it does not include location_id, price
+    StockKeys = %w(amount amount_aggregated amount_opened amount_opened_aggregated best_before_date is_aggregated_amount location_id price)
+    StockKeysInt = %w(amount amount_aggregated amount_opened amount_opened_aggregated location_id")
+
+    # TODO: check why stock api does not include location_id, price
+
 
     attr_accessor(*ProductKeys)
     attr_accessor(*StockKeys)
 
-    def initialize #(barcode="", name="", quantity=1)
-      # @id = nil
-      #@barcode = barcode
-      #@name = name
-      # @quantity = quantity
-      # @product_group_id = 6 # FIXME: this is my tea category
+    attr_accessor :changed
+
+
+    def initialize
+      @changed = false
     end
 
     def self.from_product(p)
@@ -26,7 +28,11 @@ module Item
 
     def update_stock(s)
       StockKeys.each do |key|
-        self.send("#{key}=", s[key])
+        if StockKeysInt.include?(key)
+          self.send("#{key}=", s[key].to_i)
+        else
+          self.send("#{key}=", s[key])
+        end
       end
     end
 
@@ -41,32 +47,41 @@ module Item
     def to_stock
       {
         location_id: @location_id,
-        new_amount: @quantity,
-        best_before_date: @best_before,
+        new_amount: @amount,
+        best_before_date: @best_before_date,
         price: @price || 0,
       }
     end
 
     def to_open
       {
-        amount: @open
+        amount: @amount_opened
       }
     end
 
-    def format_line
+    def line_arr
       res = [name, amount]
       if amount_opened.to_i > 0
         res << "(#{amount_opened} open)"
+      else
+        res << ""
       end
-      res.join("\t\t")
+      res << best_before_date
+      res << price
+      res
+    end
+
+    def change_amount(diff)
+      @amount += diff
+      @changed = true
     end
 
     # these things should be moved in cli
     def query_quantity
-      puts "Quantity? Enter to keep unchanged at #{@quantity}"
+      puts "Quantity? Enter to keep unchanged at #{@amount}"
       r = gets.strip
       if r != "" && r.to_i != 0
-        @quantity = r.to_i
+        @amount = r.to_i
       end
     end
 
@@ -74,19 +89,19 @@ module Item
       puts "Best before date? (yyyy-mm-dd or dd-mm-(yyyy)) (leave empty for never)"
       case gets.strip.scan(/\d+/).map{|l| l.to_i}
       in [2000.. => a, b, c]
-        @best_before = "#{a}-#{b}-#{c}"
+        @best_before_date = "#{a}-#{b}-#{c}"
       in [a, b, 2000.. => c]
-        @best_before = "#{c}-#{b}-#{a}"
+        @best_before_date = "#{c}-#{b}-#{a}"
       in [a,b]
-        @best_before = "#{Time.now.year}-#{b}-#{a}"
+        @best_before_date = "#{Time.now.year}-#{b}-#{a}"
       else
-        @best_before = "2999-12-31"
+        @best_before_date = "2999-12-31"
       end
 
-      y,m,d = @best_before.split("-")
+      y,m,d = @best_before_date.split("-")
       m = "0#{m}" if m.size == 1
       d = "0#{d}" if d.size == 1
-      @best_before = "#{y}-#{m}-#{d}"
+      @best_before_date = "#{y}-#{m}-#{d}"
     end
 
     def query_price

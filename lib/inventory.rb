@@ -4,19 +4,21 @@ module Inventory
   def update?
     return true unless @inventory
     return true unless @db_changed
-
-    # todo check database for update
+    return true if @db_changed != @grocy.last_changed
 
     false
   end
 
   def update_items!
+    @db_changed = @grocy.last_changed
     @inventory = {}
+    @products = {}
     @grocy.products.each do |p|
-      @inventory[p["id"]] = Item.from_product(p)
+      @products[p["id"]] = Item.from_product(p)
     end
     @grocy.stock.each do |s|
-      @inventory[s["product_id"]].update_stock(s)
+      @products[s["product_id"]].update_stock(s)
+      @inventory[s["product_id"]] = @products[s["product_id"]]
     end
   end
 
