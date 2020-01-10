@@ -143,6 +143,7 @@ module Cli
     item.name = name
     item.amount = 1
     item.query_best_before
+    item.query_misc
     @items << item
   end
 
@@ -150,7 +151,6 @@ module Cli
     item.location_id = @location_id
     item.qu_id_purchase = 3
     item.qu_id_stock = 3
-    item.qu_factor_purchase_to_stock = 1
 
     item = @grocy.insert_product(item)
 

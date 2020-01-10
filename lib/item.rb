@@ -39,7 +39,7 @@ module Item
     def to_product
       p = {}
       ProductKeys.each do |key|
-        p[key] = self.send(key)
+        p[key] = self.send(key) if self.send(key) != nil
       end
       return p
     end
@@ -102,6 +102,26 @@ module Item
       m = "0#{m}" if m.size == 1
       d = "0#{d}" if d.size == 1
       @best_before_date = "#{y}-#{m}-#{d}"
+    end
+
+    def query_misc
+      puts "one packet has how many items?"
+      r = gets.strip
+      if r != ""
+        @qu_factor_purchase_to_stock = r.to_i
+      end
+
+      puts "How many days does it last after opening?"
+      r = gets.strip
+      if r != ""
+        @default_best_before_days_after_open = r.to_i
+      end
+
+      puts "How many to keep in stock?"
+      r = gets.strip
+      if r != ""
+        @min_stock_amount = r.to_i
+      end
     end
 
     def query_price
