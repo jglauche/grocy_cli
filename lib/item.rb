@@ -1,25 +1,41 @@
 module Item
   class Item
-    attr_accessor :id, :barcode, :name, :quantity, :best_before, :price, :open, :location_id, :best_before_days, :qu_id_purchase, :qu_id_stock, :qu_factor, :product_group_id
+    ProductKeys = %w(id barcode name description location_id qu_id_purchase qu_id_stock qu_factor_purchase_to_stock min_stock_amount default_best_before_days product_group_id default_best_before_days_after_open allow_partial_units_in_stock enable_tare_weight_handling tare_weight not_check_stock_fulfillment_for_recipes)
 
-    def initialize(barcode, name="", quantity=1)
-      @id = nil
-      @barcode = barcode
-      @name = name
-      @quantity = quantity
+    StockKeys = %w(amount amount_aggregated amount_opened amount_opened_aggregated best_before_date is_aggregated_amount)
+    # TODO: check why it does not include location_id, price
+
+    attr_accessor(*ProductKeys)
+    attr_accessor(*StockKeys)
+
+    def initialize #(barcode="", name="", quantity=1)
+      # @id = nil
+      #@barcode = barcode
+      #@name = name
+      # @quantity = quantity
+      # @product_group_id = 6 # FIXME: this is my tea category
+    end
+
+    def self.from_product(p)
+      i = Item.new
+      ProductKeys.each do |key|
+        i.send("#{key}=", p[key])
+      end
+      i
+    end
+
+    def update_stock(s)
+      StockKeys.each do |key|
+        self.send("#{key}=", s[key])
+      end
     end
 
     def to_product
-      {
-        location_id: @location_id,
-        default_best_before_days: @best_before_days || 0,
-        barcode: @barcode,
-        name: @name,
-        qu_id_purchase: @qu_id_purchase,
-        qu_id_stock: @qu_id_stock,
-        qu_factor_purchase_to_stock: @qu_factor,
-        product_group_id: @product_group_id,
-      }
+      p = {}
+      ProductKeys.each do |key|
+        p[key] = self.send(key)
+      end
+      return p
     end
 
     def to_stock
@@ -37,6 +53,13 @@ module Item
       }
     end
 
+    def format_line
+      res = [name, amount]
+      if amount_opened.to_i > 0
+        res << "(#{amount_opened} open)"
+      end
+      res.join("\t\t")
+    end
 
     # these things should be moved in cli
     def query_quantity

@@ -6,6 +6,10 @@ module Cli
   class InvalidKeyException < StandardError
   end
 
+  def init
+    CLI::UI::StdoutRouter.enable
+  end
+
   def clear_screen
     puts "\e[H\e[2J"
   end
@@ -13,35 +17,28 @@ module Cli
 
   def setup_location
     clear_screen
-    puts "Locations"
-    puts ""
-
-    locations = {}
-    arr = @grocy.locations
-    arr.each do |l|
-      locations[l['id']] = l['name']
-      puts "#{l['id']}\t#{l['name']}"
+    CLI::UI::Frame.open('Locations') do
+      @location_id, @location_name = CLI::UI::Prompt.ask('Choose a storage location') do |handler|
+        @grocy.locations.each do |l|
+          handler.option(l['name']) { [l['id'], l['name']] }
+        end
+      end
     end
-    puts ""
-    puts "Enter location id (c for cancel, q! for quit)"
-    case l = gets.strip
-    when "q!"
-      exit
-    when "c"
-      return false
-    when /\d/
-      @location_name = locations[l]
-      raise InvalidKeyException if @location_name.nil?
-      @location_id = l
-      return true
-    else
-      raise InvalidKeyException
-    end
-  rescue InvalidKeyException
-    retry
   end
 
   def main_screen
+    clear_screen
+    CLI::UI::Frame.open('Inventory list') do
+      CLI::UI::Prompt.ask('Select') do |handler|
+        inventory.each do |id, item|
+          handler.option("#{item.format_line}") { [id, item] }
+        end
+      end
+    end
+  end
+
+  # needs to be refactored
+  def inventory_screen
     clear_screen
     puts "Inventory mode | #{@location_name} | #{@product_type} "
     puts ""
@@ -116,7 +113,7 @@ module Cli
     item.location_id = @location_id
     item.qu_id_purchase = 3
     item.qu_id_stock = 3
-    item.qu_factor = 1
+    item.qu_factor_purchase_to_stock = 1
 
     item = @grocy.insert_product(item)
 

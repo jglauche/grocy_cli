@@ -57,6 +57,14 @@ module GrocyClient
       RestClient.put [@uri, path].join("/"), data, headers
     end
 
+    def products
+      get("objects/products")
+    end
+
+    def stock
+      get("stock")
+    end
+
     def locations
       get("objects/locations")
     rescue RestClient::BadRequest

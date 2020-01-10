@@ -2,13 +2,16 @@
 require 'rest-client'
 require 'json'
 require 'yaml'
+require 'cli/ui'
 require './lib/cli'
 require './lib/grocy'
+require './lib/inventory'
 
 
 class GrocyCli
   include Grocy
   include Cli
+  include Inventory
 
   def initialize
     get_config
